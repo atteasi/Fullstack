@@ -2,46 +2,38 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 
 
-const Countries = ({ countries }) => {
-  if (countries.length === 0) {
-    return <div>No matches found</div>
-  } else if (countries.length > 10) {
-    return <div>Too many matches, specify another filter</div>
-  } else if (countries.length < 1) {
-    return <div>
-      {countries.map(country => 
-        <div key={country.name}>
-          {country.name}
-        </div>
-      )}
-    </div>
-  } else if (countries.length === 1) {
-    const baseUrl = `https://studies.cs.helsinki.fi/restcountries/api/name/${countries[0].name}`
-    let country = []
-    weather
-    axios.get(baseUrl).then(response => {
-      country = response.data
-    })
-    return( 
-    <div>
-      <h1>{country.name}</h1>
-      <p>capital {country.capital}</p>
-      <p>population {country.population}</p>
-      <h2>languages</h2>
-      <ul>
-        {country.languages.map(language => 
-          <li key={language.name}>{language.name}</li>
-        )}
-      </ul>
-      <img src={country.flag} alt="flag" width="100" height="100"/>
-      <h1>Weather in {country.capital}</h1>
-      <p>temperature: </p>
-      <img src="" alt="weather" width="100" height="100"/>
-      <p>wind: </p>
-    </div>
-
+const Countries = ({ countries, setSearch }) => {
+  if (countries.length > 10) { 
+    return <p>Too many matches, specify another filter</p>
+  }
+  if (countries.length === 1) {
+    const country = countries[0]
+    const languages = Object.values(country.languages)
+    console.log(languages)
+    return (
+      <div>
+        <h1>{country.name.common}</h1>
+        <p>capital {country.capital}</p>
+        <p>population {country.population}</p>
+        <h2>languages</h2>
+        <ul>
+          {languages.map(language => 
+            <li key={language}>{language}</li>
+          )}
+        </ul>
+        <img src={country.flags.png} alt='flag' width='100px' />
+      </div>
     )
   }
+  return (
+    <>
+      {countries.map(country => 
+        <div key={country.name.common}>{country.name.common} <button onClick={(event) =>{
+          setSearch(country.name.common)
+        }}>show</button></div>
+      )}
+    </>
+  )
 }
 
 function App() {
@@ -50,25 +42,30 @@ function App() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    axios.get(baseUrl).then(response => {
-      setCountries(response.data)
-    })
-  }, [])
+    axios
+      .get(baseUrl)
+      .then(response => {
+        setCountries(response.data)
+      })
+  }
+  , [])
 
-  const matches = countries.filter(country => 
-    country.name && typeof country.name === 'string' && country.name.toLowerCase().includes(search.toLowerCase())
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value)
+  }
+
+  const countriesToShow = countries.filter(country =>
+    country.name.common.toLowerCase().includes(search.toLowerCase())
   )
 
-return (
-  <div>
-    find countries<input value={search} onChange={(event) => {
-       console.log(search);
-       console.log(matches)
-       setSearch(event.target.value);
-     }} />
-    <Countries countries = {matches}/>
-  </div>
-)
+  return (
+    <div>
+      <div>
+        find countries <input value={search} onChange={handleSearchChange} />
+      </div>
+      <Countries countries={countriesToShow} setSearch={setSearch} />
+    </div>
+  )
 }
 
 export default App
