@@ -5,24 +5,7 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const Person = require('./models/person')
 require('dotenv').config()
-const url = process.env.MONGODB_URI
 
-mongoose.connect(url)
-
-const personSchema = new mongoose.Schema({
-    name: String,
-    number: String
-})
-
-const Person = mongoose.model('Person', personSchema)
-
-personSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
-        delete returnedObject._id
-        delete returnedObject.__v
-    }
-})
 
 app.use(cors())
 app.use(express.static('dist'))
