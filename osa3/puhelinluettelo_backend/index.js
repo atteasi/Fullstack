@@ -34,6 +34,10 @@ let persons = [
     }
 ]
 
+app.get('/', (req, res) => {
+    res.send('<h1>Hello World!</h1>')
+})
+
 app.get('/api/persons', (req, res) => {
   res.writeHead(200, { 'Content-Type': 'application/json' })
   res.end(JSON.stringify(persons))
