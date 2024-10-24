@@ -31,7 +31,7 @@ const PersonForm = ({ persons, addPerson, newName, handleNameChange, newNumber, 
           const person = persons.find(person => person.name === newName)
           const changedPerson = { ...person, number: newNumber }
           personService.update(person.id, changedPerson)
-        }
+        } 
       } else {
         addPerson();
       }
@@ -118,7 +118,17 @@ const App = () => {
         }
         setPersons(persons.concat(personObject))
         personService.create(personObject)
-        setErrorMessage(`Added ${newName}`)
+          .then(returnedPerson => {
+            setPersons(persons.concat(returnedPerson))
+            setErrorMessage(`Added ${returnedPerson.name}`)
+          })
+          .catch(error => {
+            setErrorMessage(error.response.data.error)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
+          })
+        
         setTimeout(() => {
           setErrorMessage(null)
         }, 5000)
